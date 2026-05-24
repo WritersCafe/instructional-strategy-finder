@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Instructional Strategy Finder</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f8f3ef;
+    color: #2d2522;
+    padding: 24px;
+  }
+  h1 {
+    color: #5b3f36;
+  }
+  .filters, .card {
+    background: white;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  }
+  select, input {
+    padding: 10px;
+    margin: 6px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+  }
+  button {
+    background: #c77d8c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+  details {
+    margin-top: 10px;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #2f6f73;
+  }
+  .tag {
+    display: inline-block;
+    background: #ead8d1;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    margin: 3px;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Instructional Strategy Finder</h1>
+<p>Use the filters to find a strategy based on the type of thinking or activity you need.</p>
+
+<div class="filters">
+  <input type="text" id="searchBox" placeholder="Search strategy..." />
+
+  <select id="playlistFilter">
+    <option value="all">All Playlists</option>
+    <option value="movement">Movement & Discourse</option>
+    <option value="practice">Rehearsal & Practice</option>
+    <option value="thinking">Extending Thinking</option>
+    <option value="mistakes">Learning from Mistakes</option>
+    <option value="evidence">Evidence of Learning</option>
+  </select>
+
+  <select id="thinkingFilter">
+    <option value="all">All Thinking Needs</option>
+    <option value="discussion">Discussion</option>
+    <option value="summary">Summary</option>
+    <option value="inference">Inference</option>
+    <option value="vocabulary">Vocabulary</option>
+    <option value="error-analysis">Error Analysis</option>
+    <option value="review">Review</option>
+  </select>
+
+  <button onclick="filterStrategies()">Find Strategies</button>
+</div>
+
+<div id="strategyContainer"></div>
+
+<script>
+const strategies = [
+  {
+    title: "Just the Facts",
+    playlist: "practice",
+    thinking: ["inference", "summary", "discussion"],
+    time: "15–20 minutes",
+    grouping: "Partner / Small Group",
+    purpose: "Students select important facts from a text and use those facts to make an inference.",
+    bestUse: "Use when students need help moving from concrete details to interpretation.",
+    steps: [
+      "Students read the selected text.",
+      "Students record different types of facts: interesting, useful, new, important, or surprising.",
+      "Students partner up and justify why they chose those facts.",
+      "Students select one or more facts from their partner.",
+      "Students write an inference based on the facts."
+    ],
+    differentiation: "Provide sentence stems, audio text, a fact bank, or allow students to dictate ideas to a scribe.",
+    materials: "Text passage, fact cards, notebook paper, or digital template.",
+    ecosystem: "This fits perfectly inside your Thinking Lab because it follows Notice → Interpret → Synthesize.",
+    exitTicket: "What fact helped you make your strongest inference? Explain why."
+  },
+  {
+    title: "Tour of Knowledge",
+    playlist: "practice",
+    thinking: ["discussion", "review", "error-analysis"],
+    time: "20–30 minutes",
+    grouping: "Small Group Rotation",
+    purpose: "Students rotate through posters or passages and add, question, or verify ideas.",
+    bestUse: "Use when students need movement, collaboration, and visible thinking.",
+    steps: [
+      "Post 6–8 stimuli, passages, or questions around the room.",
+      "Groups rotate with a unique marker color.",
+      "Students add what they know.",
+      "Students place a check by ideas they agree with.",
+      "Students place a question mark beside ideas they challenge.",
+      "Teacher reviews patterns and clarifies misconceptions."
+    ],
+    differentiation: "Provide word banks, shortened text, visuals, or allow supportive peer reading.",
+    materials: "Posters, passages, markers, timer.",
+    ecosystem: "Rename this as a Thinking Lab Tour or Hunt Rotation.",
+    exitTicket: "Which station changed or deepened your thinking the most?"
+  },
+  {
+    title: "Fact or Fib Showdown",
+    playlist: "practice",
+    thinking: ["error-analysis", "review", "discussion"],
+    time: "10–15 minutes",
+    grouping: "Partner",
+    purpose: "Students decide whether statements are true or false and justify their thinking.",
+    bestUse: "Use before a quiz, after a misconception, or during STAAR review.",
+    steps: [
+      "Give students a FACT card and a FIB card.",
+      "Read a statement connected to the lesson.",
+      "Students choose fact or fib.",
+      "Students show their card at the same time.",
+      "Partners justify their answer.",
+      "Teacher clarifies the correct reasoning."
+    ],
+    differentiation: "Use simpler statements first, provide stems, or let students preview vocabulary.",
+    materials: "Fact/Fib cards and 4–6 statements.",
+    ecosystem: "This works well as a Quick Check Autopsy warm-up.",
+    exitTicket: "Write one fib and correct it with a complete explanation."
+  }
+];
+
+function displayStrategies(list) {
+  const container = document.getElementById("strategyContainer");
+  container.innerHTML = "";
+
+  if (list.length === 0) {
+    container.innerHTML = "<p>No strategies found. Try a different filter.</p>";
+    return;
+  }
+
+  list.forEach(strategy => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h2>${strategy.title}</h2>
+      <span class="tag">${strategy.playlist}</span>
+      <span class="tag">${strategy.time}</span>
+      <span class="tag">${strategy.grouping}</span>
+
+      <details open>
+        <summary>Purpose</summary>
+        <p>${strategy.purpose}</p>
+      </details>
+
+      <details>
+        <summary>Best Used When</summary>
+        <p>${strategy.bestUse}</p>
+      </details>
+
+      <details>
+        <summary>Step-by-Step Instructions</summary>
+        <ol>${strategy.steps.map(step => `<li>${step}</li>`).join("")}</ol>
+      </details>
+
+      <details>
+        <summary>Differentiation</summary>
+        <p>${strategy.differentiation}</p>
+      </details>
+
+      <details>
+        <summary>Materials</summary>
+        <p>${strategy.materials}</p>
+      </details>
+
+      <details>
+        <summary>Learning Ecosystem Adaptation</summary>
+        <p>${strategy.ecosystem}</p>
+      </details>
+
+      <details>
+        <summary>Exit Ticket Idea</summary>
+        <p>${strategy.exitTicket}</p>
+      </details>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function filterStrategies() {
+  const search = document.getElementById("searchBox").value.toLowerCase();
+  const playlist = document.getElementById("playlistFilter").value;
+  const thinking = document.getElementById("thinkingFilter").value;
+
+  const filtered = strategies.filter(strategy => {
+    const matchesSearch = strategy.title.toLowerCase().includes(search);
+    const matchesPlaylist = playlist === "all" || strategy.playlist === playlist;
+    const matchesThinking = thinking === "all" || strategy.thinking.includes(thinking);
+
+    return matchesSearch && matchesPlaylist && matchesThinking;
+  });
+
+  displayStrategies(filtered);
+}
+
+displayStrategies(strategies);
+</script>
+
+</body>
+</html>
