@@ -3,152 +3,459 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Instructional Strategy Finder</title>
+<title>Writer's Café Strategy Finder</title>
 <style>
   body {
+    margin: 0;
     font-family: Arial, sans-serif;
-    background: #f8f3ef;
+    background: #f7eee9;
     color: #2d2522;
+  }
+
+  header {
+    background: linear-gradient(135deg, #5b3f36, #b86f82, #2f6f73);
+    color: white;
+    padding: 28px;
+    text-align: center;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  header p {
+    margin-top: 8px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: auto;
     padding: 24px;
   }
-  h1 {
-    color: #5b3f36;
-  }
-  .filters, .card {
+
+  .filters {
     background: white;
-    border-radius: 18px;
     padding: 18px;
-    margin-bottom: 18px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    border-radius: 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.08);
+    margin-bottom: 24px;
   }
-  select, input {
-    padding: 10px;
+
+  input, select {
+    padding: 12px;
     margin: 6px;
     border-radius: 10px;
     border: 1px solid #ccc;
+    width: 220px;
   }
+
   button {
-    background: #c77d8c;
+    background: #b86f82;
     color: white;
     border: none;
     border-radius: 10px;
-    padding: 10px 14px;
+    padding: 12px 16px;
     cursor: pointer;
   }
-  details {
-    margin-top: 10px;
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.08);
   }
+
+  .card h2 {
+    margin-top: 0;
+    color: #5b3f36;
+  }
+
+  .tag {
+    display: inline-block;
+    background: #ead8d1;
+    color: #3b2924;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    margin: 3px;
+  }
+
+  .ecosystem {
+    background: #e4f0ef;
+  }
+
+  details {
+    border-top: 1px solid #eee;
+    padding: 10px 0;
+  }
+
   summary {
     cursor: pointer;
     font-weight: bold;
     color: #2f6f73;
   }
-  .tag {
-    display: inline-block;
-    background: #ead8d1;
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-size: 12px;
-    margin: 3px;
+
+  .script-box {
+    background: #faf6f3;
+    border-left: 5px solid #b86f82;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 30px;
+    color: #6b5a52;
   }
 </style>
 </head>
 
 <body>
 
-<h1>Instructional Strategy Finder</h1>
-<p>Use the filters to find a strategy based on the type of thinking or activity you need.</p>
+<header>
+  <h1>Writer's Café Strategy Finder</h1>
+  <p>Search by official strategy, ecosystem routine, thinking need, or classroom purpose.</p>
+</header>
 
-<div class="filters">
-  <input type="text" id="searchBox" placeholder="Search strategy..." />
+<div class="container">
 
-  <select id="playlistFilter">
-    <option value="all">All Playlists</option>
-    <option value="movement">Movement & Discourse</option>
-    <option value="practice">Rehearsal & Practice</option>
-    <option value="thinking">Extending Thinking</option>
-    <option value="mistakes">Learning from Mistakes</option>
-    <option value="evidence">Evidence of Learning</option>
-  </select>
+  <div class="filters">
+    <input type="text" id="searchBox" placeholder="Search: hunt, quick check, inference..." onkeyup="filterStrategies()" />
 
-  <select id="thinkingFilter">
-    <option value="all">All Thinking Needs</option>
-    <option value="discussion">Discussion</option>
-    <option value="summary">Summary</option>
-    <option value="inference">Inference</option>
-    <option value="vocabulary">Vocabulary</option>
-    <option value="error-analysis">Error Analysis</option>
-    <option value="review">Review</option>
-  </select>
+    <select id="playlistFilter" onchange="filterStrategies()">
+      <option value="all">All Playlists</option>
+      <option value="movement">Movement & Discourse</option>
+      <option value="practice">Rehearsal & Practice</option>
+      <option value="thinking">Extending Thinking</option>
+      <option value="mistakes">Learning from Mistakes</option>
+      <option value="evidence">Evidence of Learning</option>
+    </select>
 
-  <button onclick="filterStrategies()">Find Strategies</button>
+    <select id="thinkingFilter" onchange="filterStrategies()">
+      <option value="all">All Thinking Needs</option>
+      <option value="discussion">Discussion</option>
+      <option value="inference">Inference</option>
+      <option value="summary">Summary</option>
+      <option value="vocabulary">Vocabulary</option>
+      <option value="error-analysis">Error Analysis</option>
+      <option value="review">Review</option>
+      <option value="evidence">Evidence</option>
+      <option value="synthesis">Synthesis</option>
+    </select>
+
+    <button onclick="resetFilters()">Reset</button>
+  </div>
+
+  <div id="strategyContainer"></div>
+
 </div>
-
-<div id="strategyContainer"></div>
 
 <script>
 const strategies = [
   {
     title: "Just the Facts",
     playlist: "practice",
-    thinking: ["inference", "summary", "discussion"],
+    thinking: ["inference", "summary", "discussion", "evidence"],
+    ecosystemTags: ["thinking lab", "hunt", "notice interpret synthesize", "evidence gathering", "commentary"],
     time: "15–20 minutes",
-    grouping: "Partner / Small Group",
+    energy: "Medium",
+    teacherLoad: "Low Prep",
     purpose: "Students select important facts from a text and use those facts to make an inference.",
-    bestUse: "Use when students need help moving from concrete details to interpretation.",
+    bestUse: "Use when students are stuck at the detail level and need help moving from evidence to meaning.",
     steps: [
-      "Students read the selected text.",
+      "Students read the selected passage.",
       "Students record different types of facts: interesting, useful, new, important, or surprising.",
-      "Students partner up and justify why they chose those facts.",
-      "Students select one or more facts from their partner.",
-      "Students write an inference based on the facts."
+      "Students partner up and justify why they selected those facts.",
+      "Students borrow or revise one fact after partner discussion.",
+      "Students write an inference or conclusion based on the facts."
     ],
-    differentiation: "Provide sentence stems, audio text, a fact bank, or allow students to dictate ideas to a scribe.",
-    materials: "Text passage, fact cards, notebook paper, or digital template.",
-    ecosystem: "This fits perfectly inside your Thinking Lab because it follows Notice → Interpret → Synthesize.",
-    exitTicket: "What fact helped you make your strongest inference? Explain why."
+    differentiation: "Provide sentence stems, audio support, a fact bank, or allow students to dictate responses to a peer or scribe.",
+    materials: "Text passage, fact cards or notebook paper, sentence stems.",
+    ecosystem: "Best for Thinking Lab/Hunt work because it mirrors Notice → Interpret → Synthesize.",
+    pairsWell: "Quick Check, SCR writing, commentary practice, inference lesson.",
+    watchOut: "Students may only choose interesting details instead of important details. Model the difference first.",
+    exitTicket: "Which fact helped you make your strongest inference? Explain why.",
+    script: {
+      teacher: "Before we interpret, we have to collect the strongest details. What fact from the text feels important enough to help us understand the bigger idea?",
+      student: "I picked this detail because it shows the character is starting to change.",
+      followup: "Good. Now move from noticing to interpreting. What does that change reveal?"
+    }
   },
   {
     title: "Tour of Knowledge",
     playlist: "practice",
-    thinking: ["discussion", "review", "error-analysis"],
+    thinking: ["discussion", "review", "evidence", "error-analysis"],
+    ecosystemTags: ["gallery walk", "thinking lab", "hunt extension", "visible thinking", "station rotation"],
     time: "20–30 minutes",
-    grouping: "Small Group Rotation",
-    purpose: "Students rotate through posters or passages and add, question, or verify ideas.",
-    bestUse: "Use when students need movement, collaboration, and visible thinking.",
+    energy: "High",
+    teacherLoad: "Medium Prep",
+    purpose: "Students rotate through posters, visuals, questions, or passages and add, verify, or challenge ideas.",
+    bestUse: "Use when you want movement, collaboration, and visible thinking around multiple texts or prompts.",
     steps: [
-      "Post 6–8 stimuli, passages, or questions around the room.",
-      "Groups rotate with a unique marker color.",
-      "Students add what they know.",
-      "Students place a check by ideas they agree with.",
-      "Students place a question mark beside ideas they challenge.",
-      "Teacher reviews patterns and clarifies misconceptions."
+      "Post 6–8 passages, visuals, questions, or stimuli around the room.",
+      "Give each group a different marker color.",
+      "Groups rotate and record what they know or notice.",
+      "Groups check ideas they agree with.",
+      "Groups question ideas that may be incorrect.",
+      "Groups add new thinking at each station.",
+      "Teacher reviews patterns and clears up misconceptions."
     ],
-    differentiation: "Provide word banks, shortened text, visuals, or allow supportive peer reading.",
-    materials: "Posters, passages, markers, timer.",
-    ecosystem: "Rename this as a Thinking Lab Tour or Hunt Rotation.",
-    exitTicket: "Which station changed or deepened your thinking the most?"
+    differentiation: "Provide word banks, shortened passages, visuals, or peer reading support.",
+    materials: "Posters, passages or visuals, markers, timer.",
+    ecosystem: "This can become a Thinking Lab Tour or Gallery Walk after students complete hunts.",
+    pairsWell: "Micro share-outs, Quick Check autopsy, group whiteboards.",
+    watchOut: "Without clear sentence stems, students may write surface-level comments like 'I agree.'",
+    exitTicket: "Which station changed or deepened your thinking the most?",
+    script: {
+      teacher: "At each station, do not just write an answer. Add thinking. Check what you agree with, question what seems weak, and add something new.",
+      student: "I put a question mark because the group said this detail proves theme, but I think it only shows the topic.",
+      followup: "That is strong thinking. What would they need to add to move from topic to theme?"
+    }
   },
   {
     title: "Fact or Fib Showdown",
     playlist: "practice",
-    thinking: ["error-analysis", "review", "discussion"],
+    thinking: ["review", "error-analysis", "discussion"],
+    ecosystemTags: ["quick check", "autopsy", "reteach", "misconception check", "warm-up"],
     time: "10–15 minutes",
-    grouping: "Partner",
+    energy: "Medium",
+    teacherLoad: "Low Prep",
     purpose: "Students decide whether statements are true or false and justify their thinking.",
-    bestUse: "Use before a quiz, after a misconception, or during STAAR review.",
+    bestUse: "Use before a quiz, after a misconception appears, or during STAAR review.",
     steps: [
       "Give students a FACT card and a FIB card.",
-      "Read a statement connected to the lesson.",
+      "Read a content-based statement.",
       "Students choose fact or fib.",
-      "Students show their card at the same time.",
-      "Partners justify their answer.",
+      "Students reveal their card at the same time.",
+      "Partners justify their choice.",
       "Teacher clarifies the correct reasoning."
     ],
-    differentiation: "Use simpler statements first, provide stems, or let students preview vocabulary.",
+    differentiation: "Preview vocabulary, provide stems, or begin with easier statements before moving to trickier ones.",
     materials: "Fact/Fib cards and 4–6 statements.",
-    ecosystem: "This works well as a Quick Check Autopsy warm-up.",
-    exitTicket: "Write one fib and correct it with a complete explanation."
+    ecosystem: "Works well as a Quick Check Autopsy warm-up.",
+    pairsWell: "Mini-lesson, reteach path, exit ticket.",
+    watchOut: "Students may guess unless you require justification after every choice.",
+    exitTicket: "Write one fib and correct it with a complete explanation.",
+    script: {
+      teacher: "Do not just decide if it is true or false. Be ready to explain what word or idea made you choose fact or fib.",
+      student: "I chose fib because the statement says the detail proves the theme, but it only supports the topic.",
+      followup: "Excellent. Now rewrite the fib so it becomes accurate."
+    }
+  },
+  {
+    title: "Mystery Bag",
+    playlist: "practice",
+    thinking: ["discussion", "review", "vocabulary", "synthesis"],
+    ecosystemTags: ["explore lab", "thinking lab", "concept launch", "schema building"],
+    time: "15–20 minutes",
+    energy: "Medium",
+    teacherLoad: "Medium Prep",
+    purpose: "Students explain items, words, visuals, or questions from a bag and determine how they connect.",
+    bestUse: "Use when students need to build background knowledge or make connections between related ideas.",
+    steps: [
+      "Place words, visuals, questions, or examples in a bag.",
+      "Students work in groups of 3–4.",
+      "Each student pulls one item and explains its importance.",
+      "Group members add, clarify, or question.",
+      "Students repeat until all items are discussed.",
+      "Groups draw a conclusion about how the items connect."
+    ],
+    differentiation: "Add short descriptions, let students use notes, or pair students with supportive peers.",
+    materials: "Bags, vocabulary cards, visuals, question cards, examples.",
+    ecosystem: "Strong for Explore Lab because students begin touching the thinking before formal interpretation.",
+    pairsWell: "Focused Listing, Quick Write, vocabulary mini-lesson.",
+    watchOut: "The connection step is the most important; do not let it become only a vocabulary review.",
+    exitTicket: "How do at least three items in the bag connect?",
+    script: {
+      teacher: "Your job is to figure out how these pieces belong together. Do not stop at naming them. Ask: what relationship do they have?",
+      student: "These all connect because they show different parts of conflict.",
+      followup: "Push that further. What kind of conflict, and how does that conflict affect the plot?"
+    }
+  },
+  {
+    title: "Summary Salad",
+    playlist: "practice",
+    thinking: ["summary", "discussion", "evidence"],
+    ecosystemTags: ["summary practice", "thinking lab", "gist", "chapter review", "sequence"],
+    time: "20 minutes",
+    energy: "Medium",
+    teacherLoad: "Low Prep",
+    purpose: "Students create summary cards, mix them with another pair, choose the best cards, and sequence them.",
+    bestUse: "Use after reading when students need to separate major events from minor details.",
+    steps: [
+      "Student pairs read or review a text.",
+      "Pairs create six summary cards.",
+      "Pairs join another pair and mix all twelve cards.",
+      "The group selects the six strongest summary cards.",
+      "Students sequence the cards logically.",
+      "Students write an individual summary using the final six cards."
+    ],
+    differentiation: "Provide two starter cards, allow partner reading, or give a summary frame.",
+    materials: "Text, note cards or paper strips.",
+    ecosystem: "Great for Restart chapter summaries and SWBST preparation.",
+    pairsWell: "Theme ladder, plot review, chapter exit ticket.",
+    watchOut: "Students may include tiny details. Remind them summaries need the big moves of the text.",
+    exitTicket: "Which card did your group remove, and why was it not summary-worthy?",
+    script: {
+      teacher: "A strong summary card should capture a major move in the text, not a tiny detail. Ask yourself: would the summary still make sense without this?",
+      student: "We removed this card because it was interesting, but it did not change the main events.",
+      followup: "Exactly. Now explain which remaining card shows the biggest shift."
+    }
+  },
+  {
+    title: "Secret Coding a Worksheet",
+    playlist: "practice",
+    thinking: ["review", "discussion", "error-analysis"],
+    ecosystemTags: ["quick check", "worksheet upgrade", "reteach", "confidence check", "metacognition"],
+    time: "15–20 minutes",
+    energy: "Medium",
+    teacherLoad: "Low Prep",
+    purpose: "Students code questions by confidence level and collaborate to clarify difficult items.",
+    bestUse: "Use when you have practice questions but want students thinking metacognitively instead of silently guessing.",
+    steps: [
+      "Students preview a worksheet or question set.",
+      "Students mark one easy question with a plus.",
+      "Students mark one confusing question with a check.",
+      "Students mark one difficult question with a minus.",
+      "Students answer the plus and check questions independently.",
+      "Students partner to compare thinking.",
+      "Students work together on the minus question by naming what it asks, how to start, and what process to use."
+    ],
+    differentiation: "Give hints about which questions may fit each category, provide stems, or preview with a supportive adult.",
+    materials: "Worksheet, question set, pencil, coding key.",
+    ecosystem: "Perfect for metacognitive diagnosis because students identify where their thinking breaks down.",
+    pairsWell: "Quick Check autopsy, reteach groups, DOL review.",
+    watchOut: "Some students may label everything difficult. Require only one question per code at first.",
+    exitTicket: "What question moved from confusing to clearer, and what helped?",
+    script: {
+      teacher: "Today, you are not just answering. You are diagnosing your own thinking. Mark one question you trust, one you can work through, and one where your brain needs support.",
+      student: "I marked this one minus because I do not know how to start.",
+      followup: "That is useful data. Let’s name the first move: what is the question asking you to do?"
+    }
+  },
+  {
+    title: "ABCD Reasoning Cards",
+    playlist: "mistakes",
+    thinking: ["error-analysis", "review", "discussion"],
+    ecosystemTags: ["quick check", "answer choice autopsy", "staar review", "misconceptions", "DOL prep"],
+    time: "15–20 minutes",
+    energy: "Medium",
+    teacherLoad: "Medium Prep",
+    purpose: "Students analyze answer choices and predict why someone might choose each option.",
+    bestUse: "Use after STAAR-style multiple-choice questions to deepen answer-choice reasoning.",
+    steps: [
+      "Organize students into groups of four.",
+      "Assign each student A, B, C, or D.",
+      "Give each group multiple-choice questions.",
+      "Students explain why someone might choose their assigned answer choice.",
+      "Students rotate questions and repeat the analysis.",
+      "Groups discuss the correct answer and the most likely mistake behind each distractor.",
+      "Students summarize how to avoid the mistake next time."
+    ],
+    differentiation: "Allow students to preview answer choices, use a flow map, or work with a supportive peer.",
+    materials: "Multiple-choice question cards, ABCD labels, optional flow map.",
+    ecosystem: "This is a natural fit for your Quick Check Autopsy routine.",
+    pairsWell: "STAAR review, DOL reteach, misconception mini-lesson.",
+    watchOut: "Students may only say 'it is wrong.' Push them to name the trap.",
+    exitTicket: "Which wrong answer was most tempting, and why?",
+    script: {
+      teacher: "Your job is not just to find the right answer. Your job is to think like the test writer. Why would someone pick this answer?",
+      student: "Someone might pick B because it uses a detail from the text, but it does not answer the question.",
+      followup: "Good. That is a detail trap. Now explain how the correct answer avoids that trap."
+    }
+  },
+  {
+    title: "Odd One Out",
+    playlist: "thinking",
+    thinking: ["discussion", "vocabulary", "synthesis"],
+    ecosystemTags: ["thinking lab", "classification", "compare contrast", "concept development", "micro share-out"],
+    time: "10–15 minutes",
+    energy: "Medium",
+    teacherLoad: "Low Prep",
+    purpose: "Students compare four words, visuals, questions, or texts and justify which one does not belong.",
+    bestUse: "Use when students need to classify, compare, and defend reasoning.",
+    steps: [
+      "Give students four words, visuals, examples, or answer choices.",
+      "Students summarize the importance of each one.",
+      "Students choose one as the odd one out.",
+      "Students justify their choice.",
+      "Students share with a partner.",
+      "Students choose a different odd one out and justify again."
+    ],
+    differentiation: "Provide descriptions of each option, allow more than one correct answer, and support with sentence stems.",
+    materials: "Four words, visuals, answer choices, or short text examples.",
+    ecosystem: "Great for micro share-outs because students can defend different answers with logic.",
+    pairsWell: "Vocabulary review, author’s craft, text structure, theme topics.",
+    watchOut: "The power is in the justification, not the selection.",
+    exitTicket: "Choose a different odd one out and defend your new answer.",
+    script: {
+      teacher: "There may be more than one possible answer. What matters is whether your reasoning is logical and text-based.",
+      student: "I chose this one because the other three are examples of internal conflict, but this one is external conflict.",
+      followup: "Strong classification. Now explain how that difference changes the reader’s understanding."
+    }
+  },
+  {
+    title: "Chair Share",
+    playlist: "movement",
+    thinking: ["discussion", "review", "error-analysis"],
+    ecosystemTags: ["micro share-out", "peer revision", "thinking lab", "collaborative reasoning"],
+    time: "8–12 minutes",
+    energy: "Medium",
+    teacherLoad: "Low Prep",
+    purpose: "Students compare and justify responses with two different partners to improve thinking.",
+    bestUse: "Use after a written response, hunt, or quick question when students need peer refinement.",
+    steps: [
+      "Students answer a question or complete a short task independently.",
+      "Students switch chairs with someone nearby.",
+      "Partners share and compare responses.",
+      "Students revise if needed.",
+      "Students switch again for a second partner.",
+      "Teacher listens for patterns and clarifies."
+    ],
+    differentiation: "Allow students to preview the question, use response stems, or partner with a supportive peer.",
+    materials: "Prepared question or student response.",
+    ecosystem: "Works well after Thinking Lab notes before students finalize commentary.",
+    pairsWell: "SCR practice, commentary revision, exit tickets.",
+    watchOut: "Model what useful partner feedback sounds like before starting.",
+    exitTicket: "What did a partner say that helped you improve your thinking?",
+    script: {
+      teacher: "When you switch chairs, you are not just reading your answer. You are listening for one idea that can sharpen your thinking.",
+      student: "My partner had stronger evidence, so I added a better quote.",
+      followup: "Good revision. Now explain how that evidence strengthens your commentary."
+    }
+  },
+  {
+    title: "Stand, Stick, or Stray",
+    playlist: "movement",
+    thinking: ["discussion", "synthesis", "error-analysis"],
+    ecosystemTags: ["debate", "gallery walk", "thinking lab", "claim defense", "perspective"],
+    time: "15–20 minutes",
+    energy: "High",
+    teacherLoad: "Low Prep",
+    purpose: "Students take a position, defend it, listen to others, and decide whether to keep or change their thinking.",
+    bestUse: "Use when a question has multiple defensible interpretations.",
+    steps: [
+      "Present a question with several possible positions.",
+      "Students move to the area that matches their position.",
+      "Groups develop three reasons to defend their thinking.",
+      "One student from each group shares.",
+      "Students listen to other viewpoints.",
+      "Students either stick with their original position or stray to a new one.",
+      "Students justify why they stayed or changed."
+    ],
+    differentiation: "Provide discussion stems and allow students to preview the question before moving.",
+    materials: "Position signs, question, optional evidence sheet.",
+    ecosystem: "Excellent for visible thinking and productive struggle because students can revise publicly.",
+    pairsWell: "Debate, SCR claim development, theme analysis.",
+    watchOut: "Set norms so students challenge ideas, not people.",
+    exitTicket: "Did you stick or stray? Explain what evidence influenced you.",
+    script: {
+      teacher: "Changing your mind is not weakness. It means new evidence affected your thinking.",
+      student: "I strayed because another group used a detail I had not considered.",
+      followup: "That is real analysis. Which detail shifted your interpretation?"
+    }
   }
 ];
 
@@ -157,7 +464,7 @@ function displayStrategies(list) {
   container.innerHTML = "";
 
   if (list.length === 0) {
-    container.innerHTML = "<p>No strategies found. Try a different filter.</p>";
+    container.innerHTML = `<div class="empty">No strategies found. Try searching: hunt, Thinking Lab, Quick Check, gallery walk, inference, summary, or error analysis.</div>`;
     return;
   }
 
@@ -167,9 +474,12 @@ function displayStrategies(list) {
 
     card.innerHTML = `
       <h2>${strategy.title}</h2>
-      <span class="tag">${strategy.playlist}</span>
+
+      <span class="tag">${formatPlaylist(strategy.playlist)}</span>
       <span class="tag">${strategy.time}</span>
-      <span class="tag">${strategy.grouping}</span>
+      <span class="tag">${strategy.energy} Energy</span>
+      <span class="tag">${strategy.teacherLoad}</span>
+      ${strategy.ecosystemTags.map(tag => `<span class="tag ecosystem">${tag}</span>`).join("")}
 
       <details open>
         <summary>Purpose</summary>
@@ -197,8 +507,27 @@ function displayStrategies(list) {
       </details>
 
       <details>
-        <summary>Learning Ecosystem Adaptation</summary>
+        <summary>Learning Ecosystem Fit</summary>
         <p>${strategy.ecosystem}</p>
+      </details>
+
+      <details>
+        <summary>Pairs Well With</summary>
+        <p>${strategy.pairsWell}</p>
+      </details>
+
+      <details>
+        <summary>Watch Outs</summary>
+        <p>${strategy.watchOut}</p>
+      </details>
+
+      <details>
+        <summary>Classroom Example Script</summary>
+        <div class="script-box">
+          <p><strong>Teacher Move:</strong> ${strategy.script.teacher}</p>
+          <p><strong>Possible Student Response:</strong> ${strategy.script.student}</p>
+          <p><strong>Teacher Follow-Up:</strong> ${strategy.script.followup}</p>
+        </div>
       </details>
 
       <details>
@@ -217,7 +546,20 @@ function filterStrategies() {
   const thinking = document.getElementById("thinkingFilter").value;
 
   const filtered = strategies.filter(strategy => {
-    const matchesSearch = strategy.title.toLowerCase().includes(search);
+    const searchableText = `
+      ${strategy.title}
+      ${strategy.playlist}
+      ${strategy.thinking.join(" ")}
+      ${strategy.ecosystemTags.join(" ")}
+      ${strategy.purpose}
+      ${strategy.bestUse}
+      ${strategy.ecosystem}
+      ${strategy.pairsWell}
+      ${strategy.watchOut}
+      ${strategy.exitTicket}
+    `.toLowerCase();
+
+    const matchesSearch = searchableText.includes(search);
     const matchesPlaylist = playlist === "all" || strategy.playlist === playlist;
     const matchesThinking = thinking === "all" || strategy.thinking.includes(thinking);
 
@@ -225,6 +567,24 @@ function filterStrategies() {
   });
 
   displayStrategies(filtered);
+}
+
+function resetFilters() {
+  document.getElementById("searchBox").value = "";
+  document.getElementById("playlistFilter").value = "all";
+  document.getElementById("thinkingFilter").value = "all";
+  displayStrategies(strategies);
+}
+
+function formatPlaylist(code) {
+  const names = {
+    movement: "Movement & Discourse",
+    practice: "Rehearsal & Practice",
+    thinking: "Extending Thinking",
+    mistakes: "Learning from Mistakes",
+    evidence: "Evidence of Learning"
+  };
+  return names[code] || code;
 }
 
 displayStrategies(strategies);
