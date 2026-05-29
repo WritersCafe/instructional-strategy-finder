@@ -938,6 +938,62 @@ function resetFilters(){
 displayStrategies(strategies);
 
 </script>
+<script>
+(function(){
+  function getStrategyPayload(el){
+    const card = el.closest('[data-strategy], .strategy-card, .playlist-card, .card, article, li, button') || el;
+
+    const heading = card.querySelector('h1,h2,h3,h4,strong,b');
+
+    const title =
+      card.getAttribute('data-title') ||
+      card.getAttribute('data-strategy') ||
+      (heading ? heading.innerText : '') ||
+      card.innerText.split('\n')[0] ||
+      'Selected Strategy';
+
+    const paragraph = card.querySelector('p');
+
+    const description =
+      card.getAttribute('data-description') ||
+      (paragraph ? paragraph.innerText : '') ||
+      card.innerText.replace(title, '').trim().slice(0, 500);
+
+    const tags =
+      (card.getAttribute('data-tags') || '')
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean);
+
+    return {
+      type: 'WRITERSCAFE_PLAYLIST_SELECTION',
+      payload: {
+        title: title.trim(),
+        description: description.trim(),
+        tags: tags,
+        source: '#WritersCafe208 Instructional Strategy Finder'
+      }
+    };
+  }
+
+  document.addEventListener('click', function(e){
+    const target = e.target.closest('[data-strategy], .strategy-card, .playlist-card, .card, article, li, button');
+    if(!target) return;
+
+    const payload = getStrategyPayload(target);
+
+    // If embedded in the Retrofit Planner
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage(payload, '*');
+    }
+
+    // If opened in a new tab from the Retrofit Planner
+    if(window.opener && !window.opener.closed){
+      window.opener.postMessage(payload, '*');
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
