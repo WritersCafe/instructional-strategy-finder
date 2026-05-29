@@ -959,40 +959,80 @@ displayStrategies(strategies);
 
 <script>
 (function(){
-  const CARD_SELECTOR = '[data-strategy], .strategy-card, .playlist-card, .card, article, li';
+  const CARD_SELECTOR = '[data-strategy], .strategy-card, .playlist-card, .activity-card, .card, article, li';
 
-  function getStrategyPayload(card){
-    const heading = card.querySelector('h1,h2,h3,h4,strong,b');
+  function cleanText(text){
+    return (text || '')
+      .replace(/➕ Add to Lesson/g, '')
+      .replace(/✓ Added to Lesson/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
 
-    const title =
+  function getBestTitle(card){
+    const heading = card.querySelector('h1,h2,h3,h4,strong,b,.title,.strategy-title,.activity-title');
+    return (
       card.getAttribute('data-title') ||
       card.getAttribute('data-strategy') ||
       (heading ? heading.innerText : '') ||
       card.innerText.split('\n')[0] ||
-      'Selected Strategy';
+      'Selected Strategy'
+    ).trim();
+  }
 
-    const paragraph = card.querySelector('p');
+  function getFullWriteUp(card, title){
+    const possibleFullSections = [
+      card.querySelector('.full-writeup'),
+      card.querySelector('.activity-writeup'),
+      card.querySelector('.details'),
+      card.querySelector('.expanded'),
+      card.querySelector('.modal-body'),
+      card.querySelector('.description'),
+      card.querySelector('.content')
+    ].filter(Boolean);
 
-    const description =
-      card.getAttribute('data-description') ||
-      (paragraph ? paragraph.innerText : '') ||
-      card.innerText
-        .replace(title, '')
-        .replace('➕ Add to Lesson', '')
-        .trim()
-        .slice(0, 500);
+    let fullText = '';
 
-    const tags =
-      (card.getAttribute('data-tags') || '')
-        .split(',')
-        .map(t => t.trim())
-        .filter(Boolean);
+    if(possibleFullSections.length){
+      fullText = possibleFullSections.map(section => section.innerText).join('\n\n');
+    }else{
+      fullText = card.innerText;
+    }
+
+    fullText = cleanText(fullText);
+
+    // Do not remove title if removing it destroys context; only trim exact duplicate title at the beginning.
+    if(fullText.toLowerCase().startsWith(title.toLowerCase())){
+      fullText = fullText.slice(title.length).trim();
+    }
+
+    return fullText;
+  }
+
+  function getTags(card){
+    const raw =
+      card.getAttribute('data-tags') ||
+      card.getAttribute('data-category') ||
+      card.getAttribute('data-skill') ||
+      '';
+
+    return raw
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+  }
+
+  function getStrategyPayload(card){
+    const title = getBestTitle(card);
+    const fullWriteUp = getFullWriteUp(card, title);
+    const tags = getTags(card);
 
     return {
       type: 'WRITERSCAFE_PLAYLIST_SELECTION',
       payload: {
-        title: title.trim(),
-        description: description.trim(),
+        title: title,
+        description: fullWriteUp,
+        fullWriteUp: fullWriteUp,
         tags: tags,
         source: '#WritersCafe208 Instructional Strategy Finder'
       }
@@ -1002,12 +1042,10 @@ displayStrategies(strategies);
   function sendToPlanner(card){
     const payload = getStrategyPayload(card);
 
-    // If embedded in the Retrofit Planner
     if(window.parent && window.parent !== window){
       window.parent.postMessage(payload, '*');
     }
 
-    // If opened in a new tab from the Retrofit Planner
     if(window.opener && !window.opener.closed){
       window.opener.postMessage(payload, '*');
     }
@@ -1024,7 +1062,6 @@ displayStrategies(strategies);
     const cards = document.querySelectorAll(CARD_SELECTOR);
 
     cards.forEach(card => {
-      // Avoid adding buttons to tiny layout items or buttons themselves
       if(card.matches('button')) return;
       if(card.querySelector('.wc-add-to-lesson-btn')) return;
       if((card.innerText || '').trim().length < 20) return;
@@ -1044,18 +1081,17 @@ displayStrategies(strategies);
     });
   }
 
-  // Add buttons once page loads
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', addButtons);
   }else{
     addButtons();
   }
 
-  // Also watch for cards added later by search/filter/rendering
   const observer = new MutationObserver(() => addButtons());
   observer.observe(document.body, { childList:true, subtree:true });
 })();
 </script>
+
 
 </body>
 </html>
