@@ -938,11 +938,30 @@ function resetFilters(){
 displayStrategies(strategies);
 
 </script>
+<style>
+  .wc-add-to-lesson-btn{
+    margin-top:10px;
+    border:1px solid #eadbd4;
+    background:linear-gradient(135deg,#6ea9a4,#9ecbc6);
+    color:white;
+    border-radius:999px;
+    padding:8px 12px;
+    cursor:pointer;
+    font-weight:700;
+    font-size:13px;
+    box-shadow:0 4px 12px rgba(88,54,43,.12);
+  }
+  .wc-add-to-lesson-btn:hover{
+    transform:translateY(-1px);
+    filter:brightness(1.03);
+  }
+</style>
+
 <script>
 (function(){
-  function getStrategyPayload(el){
-    const card = el.closest('[data-strategy], .strategy-card, .playlist-card, .card, article, li, button') || el;
+  const CARD_SELECTOR = '[data-strategy], .strategy-card, .playlist-card, .card, article, li';
 
+  function getStrategyPayload(card){
     const heading = card.querySelector('h1,h2,h3,h4,strong,b');
 
     const title =
@@ -957,7 +976,11 @@ displayStrategies(strategies);
     const description =
       card.getAttribute('data-description') ||
       (paragraph ? paragraph.innerText : '') ||
-      card.innerText.replace(title, '').trim().slice(0, 500);
+      card.innerText
+        .replace(title, '')
+        .replace('➕ Add to Lesson', '')
+        .trim()
+        .slice(0, 500);
 
     const tags =
       (card.getAttribute('data-tags') || '')
@@ -976,11 +999,8 @@ displayStrategies(strategies);
     };
   }
 
-  document.addEventListener('click', function(e){
-    const target = e.target.closest('[data-strategy], .strategy-card, .playlist-card, .card, article, li, button');
-    if(!target) return;
-
-    const payload = getStrategyPayload(target);
+  function sendToPlanner(card){
+    const payload = getStrategyPayload(card);
 
     // If embedded in the Retrofit Planner
     if(window.parent && window.parent !== window){
@@ -991,7 +1011,49 @@ displayStrategies(strategies);
     if(window.opener && !window.opener.closed){
       window.opener.postMessage(payload, '*');
     }
-  });
+
+    const btn = card.querySelector('.wc-add-to-lesson-btn');
+    if(btn){
+      const oldText = btn.innerText;
+      btn.innerText = '✓ Added to Lesson';
+      setTimeout(() => btn.innerText = oldText, 1200);
+    }
+  }
+
+  function addButtons(){
+    const cards = document.querySelectorAll(CARD_SELECTOR);
+
+    cards.forEach(card => {
+      // Avoid adding buttons to tiny layout items or buttons themselves
+      if(card.matches('button')) return;
+      if(card.querySelector('.wc-add-to-lesson-btn')) return;
+      if((card.innerText || '').trim().length < 20) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'wc-add-to-lesson-btn';
+      btn.innerText = '➕ Add to Lesson';
+
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        sendToPlanner(card);
+      });
+
+      card.appendChild(btn);
+    });
+  }
+
+  // Add buttons once page loads
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', addButtons);
+  }else{
+    addButtons();
+  }
+
+  // Also watch for cards added later by search/filter/rendering
+  const observer = new MutationObserver(() => addButtons());
+  observer.observe(document.body, { childList:true, subtree:true });
 })();
 </script>
 
